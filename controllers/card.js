@@ -12,15 +12,15 @@ const getCards = (req, res) => {
 const createCard = (req, res) => {
   const { name, link } = req.body;
 
-  if (name && link) {
-    Card.create({ name, link, owner: req.user._id })
-      .then((cards) => res.send({ data: cards }))
-      .catch(() => {
-        res.status(500).send({ message: 'server error' });
-      });
-  } else {
-    res.status(400).send({ message: 'incorrect data' });
-  }
+  Card.create({ name, link, owner: req.user._id })
+    .then((cards) => res.send({ data: cards }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'incorrect data' });
+      }
+
+      return res.status(500).send({ message: 'server error' });
+    });
 };
 
 const deleteCard = (req, res) => {
