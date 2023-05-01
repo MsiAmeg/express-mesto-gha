@@ -2,13 +2,9 @@ const Card = require('../models/card');
 
 const getCards = (req, res) => {
   Card.find({})
-    .orFail(new Error('DataNotFound'))
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => {
-      if (err.message === 'DataNotFound') {
-        return res.status(404).send({ message: 'data not found' });
-      }
-      return res.status(500).send({ message: 'server error' });
+    .catch(() => {
+      res.status(500).send({ message: 'server error' });
     });
 };
 
