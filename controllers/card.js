@@ -30,12 +30,8 @@ const deleteCard = (req, res) => {
   const { cardId } = req.params;
 
   Card.findByIdAndDelete({ _id: cardId })
-    .orFail(new Error('DataNotFound'))
     .then((cards) => res.send({ data: cards }))
     .catch((err) => {
-      if (err.message === 'DataNotFound') {
-        return res.status(404).send({ message: 'card not found' });
-      }
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'incorrect id' });
       }

@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const User = require('../models/user');
 
 const getUsers = (req, res) => {
@@ -16,21 +15,20 @@ const getUsers = (req, res) => {
 const getUserById = (req, res) => {
   const { id } = req.params;
 
-  if (mongoose.Types.ObjectId.isValid(id)) {
-    User.findById({ _id: id })
-      .then((user) => {
-        if (user) {
-          res.send({ data: user });
-        } else {
-          res.status(404).send({ message: 'user not found' });
-        }
-      })
-      .catch(() => {
-        res.status(500).send({ message: 'server error' });
-      });
-  } else {
-    res.status(400).send({ message: 'incorrect id' });
-  }
+  User.findById({ _id: id })
+    .then((user) => {
+      if (user) {
+        res.send({ data: user });
+      } else {
+        res.status(404).send({ message: 'user not found' });
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'incorrect id' });
+      }
+      return res.status(500).send({ message: 'server error' });
+    });
 };
 
 const updateUserById = (req, res) => {
