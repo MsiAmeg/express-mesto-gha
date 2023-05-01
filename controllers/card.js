@@ -1,11 +1,14 @@
-const mongoose = require('mongoose');
 const Card = require('../models/card');
 
 const getCards = (req, res) => {
   Card.find({})
+    .orFail(new Error('DataNotFound'))
     .then((cards) => res.send({ data: cards }))
-    .catch(() => {
-      res.status(500).send({ message: 'server error' });
+    .catch((err) => {
+      if (err.message === 'DataNotFound') {
+        return res.status(404).send({ message: 'cards not found' });
+      }
+      return res.status(500).send({ message: 'server error' });
     });
 };
 
@@ -13,7 +16,7 @@ const createCard = (req, res) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
-    .then((cards) => res.send({ data: cards }))
+    .then((cards) => res.status(201).send({ data: cards }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'incorrect data' });
@@ -26,69 +29,62 @@ const createCard = (req, res) => {
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
 
-  if (mongoose.Types.ObjectId.isValid(cardId)) {
-    Card.findByIdAndDelete({ _id: cardId })
-      .then((cards) => {
-        if (cards) {
-          res.send({ data: cards });
-        } else {
-          res.status(404).send({ message: 'card not found' });
-        }
-      })
-      .catch(() => {
-        res.status(500).send({ message: 'server error' });
-      });
-  } else {
-    res.status(400).send({ message: 'incorrect id' });
-  }
+  Card.findByIdAndDelete({ _id: cardId })
+    .orFail(new Error('DataNotFound'))
+    .then((cards) => res.send({ data: cards }))
+    .catch((err) => {
+      if (err.message === 'DataNotFound') {
+        return res.status(404).send({ message: 'card not found' });
+      }
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'incorrect id' });
+      }
+
+      return res.status(500).send({ message: 'server error' });
+    });
 };
 
 const likeCard = (req, res) => {
   const { cardId } = req.params;
 
-  if (mongoose.Types.ObjectId.isValid(cardId)) {
-    Card.findByIdAndUpdate(
-      cardId,
-      { $addToSet: { likes: req.user._id } },
-      { new: true, runValidators: true },
-    )
-      .then((card) => {
-        if (card) {
-          res.send({ data: card });
-        } else {
-          res.status(404).send({ message: 'card not found' });
-        }
-      })
-      .catch(() => {
-        res.status(500).send({ message: 'server error' });
-      });
-  } else {
-    res.status(400).send({ message: 'incorrect id' });
-  }
+  Card.findByIdAndUpdate(
+    cardId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true },
+  )
+    .orFail(new Error('DataNotFound'))
+    .then((card) => res.send({ data: card }))
+    .catch((err) => {
+      if (err.message === 'DataNotFound') {
+        return res.status(404).send({ message: 'card not found' });
+      }
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'incorrect id' });
+      }
+      return res.status(500).send({ message: 'server error' });
+    });
 };
 
 const dislikeCard = (req, res) => {
   const { cardId } = req.params;
 
-  if (mongoose.Types.ObjectId.isValid(cardId)) {
-    Card.findByIdAndUpdate(
-      cardId,
-      { $pull: { likes: req.user._id } },
-      { new: true, runValidators: true },
-    )
-      .then((card) => {
-        if (card) {
-          res.send({ data: card });
-        } else {
-          res.status(404).send({ message: 'card not found' });
-        }
-      })
-      .catch(() => {
-        res.status(500).send({ message: 'server error' });
-      });
-  } else {
-    res.status(400).send({ message: 'incorrect id' });
-  }
+  Card.findByIdAndUpdate(
+    cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  )
+    .orFail(new Error('DataNotFound'))
+    .then((card) => res.send({ data: card }))
+    .catch((err) => {
+      if (err.message === 'DataNotFound') {
+        return res.status(404).send({ message: 'card not found' });
+      }
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'incorrect id' });
+      }
+
+      return res.status(500).send({ message: 'server error' });
+    });
 };
 
 module.exports = {
