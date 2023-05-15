@@ -17,13 +17,13 @@ const getUserMe = (req, res, next) => {
   User.findById({ _id })
     .then((user) => {
       if (user) {
-        const parsedUser = {
+        const userParsed = {
           _id: user._id,
           name: user.name,
           about: user.about,
           avatar: user.avatar,
         };
-        res.send({ data: parsedUser });
+        res.send({ data: userParsed });
       } else {
         res.status(404).send({ message: 'user not found' });
       }
@@ -76,7 +76,15 @@ const createUser = (req, res, next) => {
     .then((hash) => User.create({
       email, password: hash, name, about, avatar,
     }))
-    .then((user) => res.status(201).send({ data: user }))
+    .then((user) => {
+      const userParsed = {
+        email,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+      };
+      res.status(201).send({ data: userParsed });
+    })
     .catch(next);
 };
 
