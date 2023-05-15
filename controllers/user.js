@@ -18,7 +18,7 @@ const getUserMe = (req, res, next) => {
     .then((user) => {
       if (user) {
         const userParsed = {
-          _id: user._id,
+          _id: user._id.toString(),
           name: user.name,
           about: user.about,
           avatar: user.avatar,
