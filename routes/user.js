@@ -1,3 +1,4 @@
+require('dotenv').config();
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const {
@@ -7,10 +8,8 @@ const {
   updateUserAvatarById,
   getUserMe,
 } = require('../controllers/user');
-const regexUrl = require('../app');
 
 router.get('/', getUsers);
-
 router.get('/me', getUserMe);
 
 router.get('/:id', celebrate({
@@ -23,15 +22,13 @@ router.patch('/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
-    // eslint-disable-next-line no-useless-escape
-    avatar: Joi.string().required().regex(new RegExp(regexUrl)),
+    avatar: Joi.string().regex(new RegExp(process.env.URL_PATTERN)),
   }),
 }), updateUserById);
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    // eslint-disable-next-line no-useless-escape
-    avatar: Joi.string().required().regex(new RegExp(regexUrl)),
+    avatar: Joi.string().required().regex(new RegExp(process.env.URL_PATTERN)),
   }),
 }), updateUserAvatarById);
 

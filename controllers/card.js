@@ -23,7 +23,7 @@ const deleteCard = (req, res, next) => {
   Card.findById({ _id: cardId })
     .then((card) => {
       if (!card) throw new NotFoundError('card not found');
-      if (!card.owner.toString() === _id) throw new ForbiddenError('access to delete card denied');
+      if (!(card.owner.toString() === _id)) throw new ForbiddenError('access to delete card denied');
       card.deleteOne({})
         .then((result) => {
           res.send({ data: result });

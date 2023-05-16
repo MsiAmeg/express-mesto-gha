@@ -1,19 +1,18 @@
 const Jwt = require('jsonwebtoken');
-const { SECRET_KEY } = require('../controllers/user');
-const ForbiddenError = require('../errors/ForbiddenError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 module.exports = (req, res, next) => {
   const { jwt } = req.cookies;
 
   if (!jwt) {
-    throw new ForbiddenError('sign in to access this resource');
+    throw new UnauthorizedError('sign in to access this resource');
   }
 
   let payload;
   try {
-    payload = Jwt.verify(jwt, SECRET_KEY);
+    payload = Jwt.verify(jwt, process.env.SECRET_KEY);
   } catch (err) {
-    throw new ForbiddenError('sign in to access this resource');
+    throw new UnauthorizedError('sign in to access this resource');
   }
 
   req.user = payload;

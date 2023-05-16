@@ -4,8 +4,6 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
-const SECRET_KEY = '8924c2c6c6792d5e3355ee3f6a6b5a817b9d00b8';
-
 const getUsers = (req, res, next) => {
   User.find({})
     .orFail(new NotFoundError('user not found'))
@@ -104,7 +102,7 @@ const login = (req, res, next) => {
           if (!isValid) {
             throw new UnauthorizedError('login or password incorrect');
           }
-          const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
+          const token = jwt.sign({ _id: user._id }, process.env.SECRET_KEY, { expiresIn: '7d' });
 
           return res.status(200).cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true }).send({ _id: user._id });
         });
@@ -120,5 +118,4 @@ module.exports = {
   updateUserAvatarById,
   login,
   getUserMe,
-  SECRET_KEY,
 };
