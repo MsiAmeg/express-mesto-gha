@@ -16,11 +16,10 @@ const findByIdHandler = (req, res, next, id) => {
     .catch(next);
 };
 
-const findByIdAndUpdateHandler = (req, res, next, id, body, options) => {
+const findByIdAndUpdateHandler = (req, res, next, id, body) => {
   User.findByIdAndUpdate(
     id,
     body,
-    options,
     { new: true, runValidators: true },
   )
     .orFail(new NotFoundError('user not found'))
