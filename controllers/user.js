@@ -4,37 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
-const getUsers = (req, res, next) => {
-  User.find({})
-    .orFail(new NotFoundError('user not found'))
-    .then((users) => res.send({ data: users }))
-    .catch(next);
-};
-
-const getUserMe = (req, res, next) => {
-  const { _id } = req.user;
-
-  User.findById({ _id })
-    .then((user) => {
-      if (user) {
-        const userParsed = {
-          _id: user._id,
-          email: user.email,
-          name: user.name,
-          about: user.about,
-          avatar: user.avatar,
-        };
-        res.send({ data: userParsed });
-      } else {
-        throw new NotFoundError('user not found');
-      }
-    })
-    .catch(next);
-};
-
-const getUserById = (req, res, next) => {
-  const { id } = req.params;
-
+const findByIdHandler = (req, res, next, id) => {
   User.findById({ _id: id })
     .then((user) => {
       if (user) {
@@ -46,12 +16,11 @@ const getUserById = (req, res, next) => {
     .catch(next);
 };
 
-const updateUserById = (req, res, next) => {
-  const { name, about, avatar } = req.body;
-
+const findByIdAndUpdateHandler = (req, res, next, id, body, options) => {
   User.findByIdAndUpdate(
-    req.user._id,
-    { name, about, avatar },
+    id,
+    body,
+    options,
     { new: true, runValidators: true },
   )
     .orFail(new NotFoundError('user not found'))
@@ -59,13 +28,35 @@ const updateUserById = (req, res, next) => {
     .catch(next);
 };
 
+const getUsers = (req, res, next) => {
+  User.find({})
+    .orFail(new NotFoundError('user not found'))
+    .then((users) => res.send({ data: users }))
+    .catch(next);
+};
+
+const getUserMe = (req, res, next) => {
+  const { _id } = req.user;
+
+  findByIdHandler(req, res, next, _id);
+};
+
+const getUserById = (req, res, next) => {
+  const { id } = req.params;
+
+  findByIdHandler(req, res, next, id);
+};
+
+const updateUserById = (req, res, next) => {
+  const { name, about, avatar } = req.body;
+
+  findByIdAndUpdateHandler(req, res, next, req.user._id, { name, about, avatar });
+};
+
 const updateUserAvatarById = (req, res, next) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail(new NotFoundError('user not found'))
-    .then((user) => res.send({ data: user }))
-    .catch(next);
+  findByIdAndUpdateHandler(req, res, next, req.user._id, { avatar });
 };
 
 const createUser = (req, res, next) => {

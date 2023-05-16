@@ -1,6 +1,9 @@
 require('dotenv').config();
 const router = require('express').Router();
-const { celebrate, Joi } = require('celebrate');
+const { celebrate } = require('celebrate');
+const userIdRules = require('../validationRules/userId');
+const userMeRules = require('../validationRules/userMe');
+const userMeAvatarRules = require('../validationRules/userMeAvatar');
 const {
   getUsers,
   getUserById,
@@ -12,24 +15,10 @@ const {
 router.get('/', getUsers);
 router.get('/me', getUserMe);
 
-router.get('/:id', celebrate({
-  params: Joi.object().keys({
-    id: Joi.string().hex().required().length(24),
-  }),
-}), getUserById);
+router.get('/:id', celebrate(userIdRules), getUserById);
 
-router.patch('/me', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2).max(30),
-    avatar: Joi.string().regex(new RegExp(process.env.URL_PATTERN)),
-  }),
-}), updateUserById);
+router.patch('/me', celebrate(userMeRules), updateUserById);
 
-router.patch('/me/avatar', celebrate({
-  body: Joi.object().keys({
-    avatar: Joi.string().required().regex(new RegExp(process.env.URL_PATTERN)),
-  }),
-}), updateUserAvatarById);
+router.patch('/me/avatar', celebrate(userMeAvatarRules), updateUserAvatarById);
 
 module.exports = router;
