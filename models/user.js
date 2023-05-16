@@ -10,15 +10,11 @@ const userSChema = new mongoose.Schema({
       validator: validator.isEmail,
       message: 'incorrect email',
     },
-    minlength: [2, 'Минимальная длина поля "email" - 2'],
-    maxlength: [30, 'Максимальная длина поля "email" - 30'],
   },
   password: {
     type: String,
     required: [true, 'Поле "password" должно быть заполнено'],
     select: false,
-    minlength: [2, 'Минимальная длина поля "password" - 2'],
-    maxlength: [60, 'Максимальная длина поля "password" - 30'],
   },
   name: {
     type: String,

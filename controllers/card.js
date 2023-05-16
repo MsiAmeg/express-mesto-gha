@@ -1,4 +1,6 @@
 const Card = require('../models/card');
+const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -20,22 +22,12 @@ const deleteCard = (req, res, next) => {
 
   Card.findById({ _id: cardId })
     .then((card) => {
-      if (!card) return res.status(404).send({ message: 'card not found' });
-      return !!(card.owner.toString() === _id);
-    })
-    .then((matched) => {
-      if (matched) {
-        Card.findByIdAndDelete({ _id: cardId })
-          .then((cards) => {
-            if (cards) {
-              res.send({ data: cards });
-            } else {
-              res.status(404).send({ message: 'card not found' });
-            }
-          });
-      } else {
-        res.status(403).send({ message: 'access to delete card denied' });
-      }
+      if (!card) throw new NotFoundError('card not found');
+      if (!card.owner.toString() === _id) throw new ForbiddenError('access to delete card denied');
+      card.deleteOne({})
+        .then((result) => {
+          res.send({ data: result });
+        });
     })
     .catch(next);
 };
@@ -48,7 +40,7 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error('DataNotFound'))
+    .orFail(new NotFoundError('card not found'))
     .then((card) => res.send({ data: card }))
     .catch(next);
 };
@@ -61,7 +53,7 @@ const dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error('DataNotFound'))
+    .orFail(new NotFoundError('card not found'))
     .then((card) => res.send({ data: card }))
     .catch(next);
 };

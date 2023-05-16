@@ -24,12 +24,11 @@ const cardSChema = new mongoose.Schema({
   likes: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'user',
-    required: true,
     default: [],
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
 }, { versionKey: false });
 

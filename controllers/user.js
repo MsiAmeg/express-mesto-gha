@@ -1,12 +1,14 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const NotFoundError = require('../errors/NotFoundError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const SECRET_KEY = '8924c2c6c6792d5e3355ee3f6a6b5a817b9d00b8';
 
 const getUsers = (req, res, next) => {
   User.find({})
-    .orFail(new Error('DataNotFound'))
+    .orFail(new NotFoundError('user not found'))
     .then((users) => res.send({ data: users }))
     .catch(next);
 };
@@ -26,7 +28,7 @@ const getUserMe = (req, res, next) => {
         };
         res.send({ data: userParsed });
       } else {
-        res.status(404).send({ message: 'user not found' });
+        throw new NotFoundError('user not found');
       }
     })
     .catch(next);
@@ -40,7 +42,7 @@ const getUserById = (req, res, next) => {
       if (user) {
         res.send({ data: user });
       } else {
-        res.status(404).send({ message: 'user not found' });
+        throw new NotFoundError('user not found');
       }
     })
     .catch(next);
@@ -54,7 +56,7 @@ const updateUserById = (req, res, next) => {
     { name, about, avatar },
     { new: true, runValidators: true },
   )
-    .orFail(new Error('DataNotFound'))
+    .orFail(new NotFoundError('user not found'))
     .then((user) => res.send({ data: user }))
     .catch(next);
 };
@@ -63,7 +65,7 @@ const updateUserAvatarById = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail(new Error('DataNotFound'))
+    .orFail(new NotFoundError('user not found'))
     .then((user) => res.send({ data: user }))
     .catch(next);
 };
@@ -95,12 +97,12 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return res.status(401).send({ message: 'login or password incorrect' });
+        throw new UnauthorizedError('login or password incorrect');
       }
       return bcrypt.compare(password, user.password)
         .then((isValid) => {
           if (!isValid) {
-            return res.status(401).send({ message: 'login or password incorrect' });
+            throw new UnauthorizedError('login or password incorrect');
           }
           const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
 
