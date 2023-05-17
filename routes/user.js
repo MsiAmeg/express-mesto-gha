@@ -1,4 +1,3 @@
-require('dotenv').config();
 const router = require('express').Router();
 const { celebrate } = require('celebrate');
 const userIdRules = require('../validationRules/userId');

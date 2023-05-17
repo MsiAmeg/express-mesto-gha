@@ -1,4 +1,5 @@
 const { Joi } = require('celebrate');
+const config = require('../config');
 
 const signInRules = {
   body: Joi.object().keys({
@@ -13,7 +14,7 @@ const signUpRules = {
     password: Joi.string().required().min(2).max(30),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(new RegExp(process.env.URL_PATTERN)),
+    avatar: Joi.string().regex(new RegExp(config.URL_PATTERN)),
   }),
 };
 

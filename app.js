@@ -1,9 +1,9 @@
-require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const { celebrate, errors } = require('celebrate');
+const config = require('./config');
 const { createUser, login } = require('./controllers/user');
 const { signInRules, signUpRules } = require('./validationRules/auth');
 const NotFoundError = require('./errors/NotFoundError');
@@ -31,4 +31,4 @@ app.use('*', (() => {
 app.use(errors());
 app.use(require('./middlewares/error'));
 
-app.listen(process.env.PORT);
+app.listen(config.PORT);

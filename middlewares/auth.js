@@ -1,4 +1,5 @@
 const Jwt = require('jsonwebtoken');
+const config = require('../config');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
 module.exports = (req, res, next) => {
@@ -10,7 +11,7 @@ module.exports = (req, res, next) => {
 
   let payload;
   try {
-    payload = Jwt.verify(jwt, process.env.SECRET_KEY);
+    payload = Jwt.verify(jwt, config.SECRET_KEY);
   } catch (err) {
     return next(new UnauthorizedError('sign in to access this resource'));
   }
