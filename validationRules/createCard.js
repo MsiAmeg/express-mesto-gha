@@ -7,5 +7,4 @@ const createCardRules = {
     link: Joi.string().required().pattern(new RegExp(config.URL_PATTERN)),
   }),
 };
-
 module.exports = createCardRules;
