@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
-const config = require('../config');
 
 const userSChema = new mongoose.Schema({
   email: {
@@ -34,7 +33,7 @@ const userSChema = new mongoose.Schema({
     validate: {
       validator(url) {
         // eslint-disable-next-line no-useless-escape
-        return new RegExp(config.URL_PATTERN).test(url);
+        return /^https?:\/\/(www.)?[\da-z(\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\,\;\=)]{2,}#?$/.test(url);
       },
       message: 'incorrect URL',
     },
