@@ -47,9 +47,9 @@ const getUserById = (req, res, next) => {
 };
 
 const updateUserById = (req, res, next) => {
-  const { name, about, avatar } = req.body;
+  const { name, about } = req.body;
 
-  findByIdAndUpdateHandler(req, res, next, req.user._id, { name, about, avatar });
+  findByIdAndUpdateHandler(req, res, next, req.user._id, { name, about });
 };
 
 const updateUserAvatarById = (req, res, next) => {
