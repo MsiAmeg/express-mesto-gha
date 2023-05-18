@@ -24,8 +24,9 @@ app.use(require('./middlewares/auth'));
 app.use('/users', require('./routes/user'));
 app.use('/cards', require('./routes/card'));
 
-app.use('*', (() => {
-  throw new NotFoundError('invalid url');
+app.use('*', ((req, res, next) => {
+  const err = new NotFoundError('invalid url');
+  return next(err);
 }));
 
 app.use(errors());
